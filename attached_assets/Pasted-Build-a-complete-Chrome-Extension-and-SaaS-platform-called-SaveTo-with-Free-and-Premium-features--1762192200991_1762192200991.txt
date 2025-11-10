@@ -1,0 +1,58 @@
+Build a complete Chrome Extension and SaaS platform called "SaveTo" with Free and Premium features, **without AI integration**:
+
+1️⃣ Chrome Extension:
+- Right-click menu on any webpage or selected text:
+  - Save To → Google Sheets, Trello, Notion, PDF
+- Popup menu as alternative interface for choosing target app
+- Free Features (no backend required):
+  - Save selected content to ONE app (Google Sheets, Trello, Notion, or PDF)
+  - PDF generation with html2pdf.js or jsPDF
+- Premium Features (require backend + subscription check):
+  - Save to MULTIPLE apps in one click
+  - Multi-account management
+  - Unlimited saves
+- Show confirmation notification after save
+- Extension must handle OAuth login for each connected app
+- Users can add more accounts in extension settings
+- Show “Upgrade to Premium” button for locked features
+
+2️⃣ SaaS Backend (Node.js + Express / NestJS):
+- MongoDB or PostgreSQL for user and subscription data
+- User authentication and management
+- API endpoints for:
+  - Receiving content from extension
+  - Saving content to selected apps (multi-app save)
+  - Checking user subscription status
+- Integrations:
+ 
+  - Stripe or PayPal webhooks to update subscription status
+  - Backend verifies subscription before allowing premium features
+
+3️⃣ SaaS Dashboard (React / Next.js):
+- Show all saved content from all apps
+- Search, filter, and manage saved items
+- Connect multiple accounts
+- Display subscription status and upgrade options
+
+4️⃣ Technical Details:
+- Chrome extension uses Manifest V3
+- Extension communicates with SaaS backend via HTTPS API
+- OAuth2 for Google Sheets, Trello, Notion
+- Save user settings securely
+- Notifications for success/failure
+- Client-side save for free features, backend only for premium
+- Payments handled securely via backend
+
+5️⃣ Requirements:
+- Full folder structure for Chrome extension and SaaS
+- Include example API calls for Google Sheets, Trello, Notion
+- Include example PDF save
+- Include Stripe/PayPal payment flow example
+- Well-commented, production-ready but easy to customize
+- README with setup instructions and placeholder keys
+
+Output: Provide **all necessary code files** including:
+- Chrome extension: manifest.json, background.js, content.js, popup.html, popup.js
+- SaaS backend: server.js/app.js, routes, models
+- Frontend: React components for dashboard
+- Integration examples: Google Sheets, Trello, Notion, PDF, Payments
