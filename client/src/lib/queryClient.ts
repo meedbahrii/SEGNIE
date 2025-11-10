@@ -2,13 +2,26 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 let csrfToken: string | null = null;
 
+// base URL for API (set in Vercel as VITE_API_BASE_URL). If empty, use relative paths.
+const API_BASE = typeof import.meta !== 'undefined' && (import.meta.env as any)?.VITE_API_BASE_URL
+  ? (import.meta.env as any).VITE_API_BASE_URL
+  : '';
+
+export function apiUrl(path: string) {
+  if (!path) return API_BASE || path;
+  if (/^https?:\/\//.test(path)) return path;
+  const p = path.startsWith('/') ? path : `/${path}`;
+  if (!API_BASE) return p;
+  return API_BASE.replace(/\/$/, '') + p;
+}
+
 async function getCsrfToken(): Promise<string> {
   if (csrfToken) {
     return csrfToken;
   }
   
   try {
-    const res = await fetch('/api/csrf-token', {
+    const res = await fetch(apiUrl('/api/csrf-token'), {
       credentials: 'include',
     });
     const data = await res.json();
@@ -41,7 +54,7 @@ export async function apiRequest(
     }
   }
   
-  const res = await fetch(url, {
+  const res = await fetch(apiUrl(url), {
     method,
     headers,
     body: data ? JSON.stringify(data) : undefined,
@@ -58,7 +71,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const res = await fetch(apiUrl(queryKey.join("/")) as string, {
       credentials: "include",
     });
 

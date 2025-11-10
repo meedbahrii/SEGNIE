@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Sparkles, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiUrl } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 
 const registerSchema = z.object({
@@ -53,7 +53,7 @@ export default function Register() {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch(apiUrl("/api/auth/register"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
