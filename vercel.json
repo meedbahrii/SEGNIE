@@ -39,10 +39,6 @@
     }
   ],
   "env": {
-    "DATABASE_URL": "@database_url",
-    "SESSION_SECRET": "@session_secret",
-    "STRIPE_SECRET_KEY": "@stripe_secret_key",
-    "STRIPE_PRICE_ID": "@stripe_price_id",
-    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret"
+    "VITE_API_BASE_URL": "@vite_api_base_url"
   }
 }
