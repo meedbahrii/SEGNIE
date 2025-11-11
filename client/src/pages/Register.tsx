@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Sparkles, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { queryClient, apiUrl } from "@/lib/queryClient";
+import { queryClient, apiUrl, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 
 const registerSchema = z.object({
@@ -53,25 +53,17 @@ export default function Register() {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      const response = await fetch(apiUrl("/api/auth/register"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          email: data.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          username: data.username,
-          password: data.password,
-        }),
+      // Use apiRequest helper which will fetch a CSRF token and include it for non-GET requests
+      const res = await apiRequest("POST", "/api/auth/register", {
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        username: data.username,
+        password: data.password,
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Registration failed");
-      }
+      // apiRequest throws for non-OK responses; parse returned JSON on success
+      const responseData = await res.json();
 
       await queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
 
