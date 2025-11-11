@@ -3,7 +3,7 @@
   "name": "Segnie - Save Anywhere Instantly",
   "version": "1.0.0",
   "description": "One-click saves to Google Sheets, Notion, Trello, and PDF. Organize your research across all your favorite apps.",
-  "homepage_url": "https://workspace.cw7mxngre9.repl.co",
+  "homepage_url": "https://segnie.vercel.app",
   "permissions": [
     "activeTab",
     "contextMenus",
