@@ -5,8 +5,6 @@
     "buildCommand": "npm ci && npm run build"
   },
   "deploy": {
-    "startCommand": "npm run start",
-    "restartPolicyType": "unless_stopped",
-    "restartPolicyMaxRetries": 5
+    "startCommand": "npm run start"
   }
 }
