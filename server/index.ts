@@ -267,15 +267,23 @@ app.use((req, res, next) => {
     try {
       const existingPosts = await storage.getAllBlogPosts();
       if (existingPosts.length === 0) {
-        await Promise.all(
-          allBlogPosts.map(post => storage.createBlogPost(post))
-        );
-        log(`✅ Initialized ${allBlogPosts.length} blog posts`);
+        // Insert posts sequentially to avoid overwhelming DB connections and to get per-post errors
+        let created = 0;
+        for (const post of allBlogPosts) {
+          try {
+            await storage.createBlogPost(post);
+            created++;
+          } catch (postErr) {
+            console.error('Failed to create blog post:', postErr);
+          }
+        }
+        log(`✅ Initialized ${created} / ${allBlogPosts.length} blog posts`);
       } else {
         log(`ℹ️  Blog posts already initialized (${existingPosts.length} posts)`);
       }
-    } catch (error) {
-      log('⚠️  Error initializing blog posts:', error);
+    } catch (error: any) {
+      // ensure we log a readable error message and stack
+      console.error('Error initializing blog posts:', error && (error.stack || error.message || error));
     }
   });
 
