@@ -39,29 +39,47 @@ if (ALLOWED_EXTENSION_IDS.length > 0) {
   log('⚠️  No extension IDs configured - extension access will be blocked in production');
 }
 
+// Build allowed origins list; allow adding via environment variables for production (e.g. Vercel)
+const allowedOrigins = [
+  'http://localhost:5000',
+  'http://localhost:3000',
+];
+
+// Add replit domains if configured (existing behavior)
+if (isProduction && process.env.REPLIT_DOMAINS) {
+  const replitDomains = process.env.REPLIT_DOMAINS.split(',');
+  replitDomains.forEach(domain => {
+    allowedOrigins.push(`https://${domain.trim()}`);
+  });
+}
+
+// Add any comma-separated additional origins from ALLOWED_ORIGINS env var
+if (process.env.ALLOWED_ORIGINS) {
+  process.env.ALLOWED_ORIGINS.split(',').forEach(o => {
+    const trimmed = o.trim();
+    if (trimmed) allowedOrigins.push(trimmed);
+  });
+}
+
+// Convenience: allow a VERCEL_FRONTEND_URL env var (e.g. "segnie.vercel.app")
+if (process.env.VERCEL_FRONTEND_URL) {
+  let url = process.env.VERCEL_FRONTEND_URL.trim();
+  if (!/^https?:\/\//.test(url)) url = `https://${url}`;
+  allowedOrigins.push(url);
+}
+
+log(`CORS allowed origins: ${JSON.stringify(allowedOrigins)}`);
+
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = [
-      'http://localhost:5000',
-      'http://localhost:3000',
-    ];
-    
-    if (isProduction && process.env.REPLIT_DOMAINS) {
-      const replitDomains = process.env.REPLIT_DOMAINS.split(',');
-      replitDomains.forEach(domain => {
-        allowedOrigins.push(`https://${domain.trim()}`);
-      });
-    }
-    
-    if (!origin) {
-      return callback(null, true);
-    }
-    
+    // allow requests with no origin (e.g. mobile apps, curl)
+    if (!origin) return callback(null, true);
+
+    // allow browser extensions by origin scheme if configured
     if (origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://')) {
       const extensionId = origin.split('://')[1];
-      const isAllowed = ALLOWED_EXTENSION_IDS.includes(extensionId) || 
-                        (!isProduction && extensionId);
-      
+      const isAllowed = ALLOWED_EXTENSION_IDS.includes(extensionId) || (!isProduction && extensionId);
+
       if (isAllowed) {
         return callback(null, true);
       } else {
@@ -69,12 +87,13 @@ app.use(cors({
         return callback(null, false);
       }
     }
-    
+
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(null, false);
+      return callback(null, true);
     }
+
+    log(`🚫 CORS blocked origin: ${origin}`);
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
